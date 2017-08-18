@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace shopTest\Http\Controllers\Auth;
 
-use App\User;
-use App\Http\Controllers\Controller;
+use shopTest\User;
+use shopTest\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
 
@@ -58,14 +58,20 @@ class RegisterController extends Controller
      * Create a new user instance after a valid registration.
      *
      * @param  array  $data
-     * @return \App\User
+     * @return \shopTest\User
      */
     protected function create(array $data)
     {
         return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
+            'name'          => $data['name'],
+            'email'         => $data['email'],
+            'provider'      => empty($data['provider'])?"": $data['provider'],
+            'provider_id'   => empty($data['provider_id'])?"":$data['provider_id'],
+            'password'      => bcrypt($data['password']),
         ]);
     }
+
+    
+
+  
 }

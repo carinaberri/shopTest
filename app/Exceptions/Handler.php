@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Exceptions;
+namespace shopTest\Exceptions;
 
 use Exception;
 use Illuminate\Auth\AuthenticationException;
