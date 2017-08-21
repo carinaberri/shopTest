@@ -47,7 +47,7 @@ class ProductController extends Controller
         $categories     = Category::all();
         $product_model  = Product::whereHas('categories', function ($query) use ($id) {
                         $query->where('category_id', '=', $id);
-                    })::orderBy('id', 'desc')->paginate($this->paginate);
+                    })->paginate($this->paginate);
         $products       = $product_model->map(function ($item, $key) {
                                     $directory      = '/public/product/'. $item->id."/";
                                     $file           = Storage::files($directory);

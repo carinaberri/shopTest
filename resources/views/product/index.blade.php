@@ -84,7 +84,7 @@
     @foreach($products as $product)         
                 <tr role="row" class="odd">
                   <td >@isset($product->img[0]) <img src="{{ Storage::url($product->img[0])}}"/> @endisset</td>
-                  <td class="sorting_1"><a href="/product/{{ $product->id }}">{{ $product->name }}</a></td>
+                  <td class="sorting_1"><a href="/product/{{ $product->id }}/edit">{{ $product->name }}</a></td>
                   <td>{{ $product->description}}</td>
                   <td>{{ $product->quantity}}</td>
                   <td>{{ $product->price}}</td>
