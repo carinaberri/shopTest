@@ -50,15 +50,16 @@
 						</span>
 					    <a href="#" class="btn btn-default fileinput-exists" data-dismiss="fileinput">Remove</a>
 					  </div>
+					  {{ ($errors->has('file_product')) ? $errors->first('file_product') : '' }}<br>
 					</div>
 		        </div>
 		        <div class="form-group">
-		        var_dump($categories_product); die();
 		        Cateogories : 
+		       
 		        @foreach ($categories as $category)
-				    <label> {{$category["name"]}}
-				    	{{ Form::checkbox("categories[]", $category->id, null, in_array($category->id,$categories_product)) }}		    
+				    <label> {{$category->name}}
 				    </label> 
+				    	{{ Form::checkbox("categories[]", $category->id,in_array($category->id, $categories_product)) }}		    
 				@endforeach
 				</div>
 

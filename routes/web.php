@@ -25,6 +25,10 @@ Auth::routes();
 
 // Route::resource('product', 'ProductController');
 Route::group(['middleware' => ['web']], function(){
+	Route::get('product/categories/{categories}', 'ProductController@filterByCategory');
+	Route::post('product/search', 'ProductController@search');
+	Route::get('import/product', 'ImportController@showProduct');
+	Route::post('import/product', 'ImportController@uploadProduct');
     Route::resource('product', 'ProductController');
+	Route::resource('category', 'CategoryController');
 });
-Route::resource('category', 'CategoryController');

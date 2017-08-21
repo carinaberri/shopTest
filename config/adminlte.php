@@ -45,7 +45,7 @@ return [
     |
     */
 
-    'skin' => 'black-light',
+    'skin' => 'purple',
 
     /*
     |--------------------------------------------------------------------------
@@ -121,6 +121,10 @@ return [
                 [
                     'text' => 'Categories',
                     'url'  => 'category',
+                ],
+                [
+                    'text' => 'Import',
+                    'url'  => 'import/product',
                 ],
             ],
 

@@ -13,7 +13,7 @@ class Category extends Model
     //     return $this->hasMany(Products::class);
     // }
     public function products() {
-    	return $this->belongsToMany('Product', 'categories_products');
+    	return $this->belongsToMany('shopTest\Product', 'categories_products');
   	}
 
    	

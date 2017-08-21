@@ -8,7 +8,7 @@
 		              <h3 class="box-title">New Category</h3>
 		              </div>
 
-		<form class="" action="/category" method="POST"  enctype="multipart/form-data">
+		<form class="" action="/category/{{ $category->id }}" method="POST"  enctype="multipart/form-data">
 			 <div class="box-body">
 		        <div class="form-group">
 		        	<label for="name">Name</label>
@@ -21,11 +21,25 @@
 				    {{ ($errors->has('description')) ? $errors->first('description') : '' }}<br>
 				</div>
 
+				
 				<div class="form-group">
-					<label for="exampleInputFile">File input</label>
-					<input type="file" name="file_category" id="exampleInputFile">
+					<div class="fileinput fileinput-new" data-provides="fileinput">
+					  <div class="fileinput-preview thumbnail" data-trigger="fileinput" style="width: 200px; height: 150px;">
+					  	 @foreach($files as $file)
+				        <img src="{{ Storage::url($file)}}"/>
+				        @endforeach
+					  </div>
+					  <div>
+					    <span class="btn btn-default btn-file">
+						    <span class="fileinput-new">Select image</span>
+						    <span class="fileinput-exists">Change</span>
+						    <input type="file" name="file_category"> 
+						</span>
+					    <a href="#" class="btn btn-default fileinput-exists" data-dismiss="fileinput">Remove</a>
+					  </div>
+					</div>
 		        </div>
-		        
+		      {{ method_field('PUT') }}  
 		       
 		    <input type="hidden" name="_token" value="{{ csrf_token() }}">
 		    <input type="submit" name="action" value="Salvar">

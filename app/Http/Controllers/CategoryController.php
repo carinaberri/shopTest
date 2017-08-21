@@ -21,8 +21,14 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::orderBy('created_at', 'desc')->paginate(10);
-        return view('category.index',['categories' => $categories]);
+        $categories_model = Category::orderBy('id', 'desc')->paginate(10);
+        $categories = $categories_model->map(function ($item, $key) {
+            $directory      = '/public/category/'. $item->id."/";
+            $file           = Storage::files($directory);
+            $item["img"]    = $file; 
+            return $item;
+        });
+        return view('category.index',['categories' => $categories,"categories_model"=>$categories_model]);
     }
 
     /**
@@ -43,6 +49,11 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     { 
+        $this->validate($request, [
+            'name'          => 'required|max:150',
+            'description'   => 'required|max:255',
+        ]);
+
         $category = new Category;
         $category->name        = $request->name;
         $category->description = $request->description;
@@ -89,9 +100,26 @@ class CategoryController extends Controller
      * @param  \shopTest\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Category $category)
+    public function update(Request $request, $id)
     {
-        //
+        $this->validate($request, [
+            'name'          => 'required|max:150',
+            'description'   => 'required|max:255',
+        ]);
+        
+        $category = Category::find($id);
+        $category->name         = $request->name;
+        $category->description  = $request->description;
+        $category->save();
+        $file = $request->file('file_category');        
+
+        if (!empty($file)) {
+            $ext = $file->extension($file);
+            $path = $file->storeAs('/public/category/'. $category->id."/",$category->id.".".$ext);
+        }
+
+        
+        return redirect('category')->with('message', 'category Saved!');
     }
 
     /**
@@ -100,8 +128,10 @@ class CategoryController extends Controller
      * @param  \shopTest\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Category $category)
+    public function destroy($id)
     {
-        //
+        $category = Category::findOrFail($id);
+        $category->delete();
+        return redirect()->route('category.index')->with('message','category has been deleted!');
     }
 }

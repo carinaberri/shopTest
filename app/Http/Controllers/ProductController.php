@@ -6,9 +6,11 @@ use shopTest\Product;
 use shopTest\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\DB;
 class ProductController extends Controller
 {
+
+    protected $paginate = 5;
  
     public function __construct()
     {
@@ -23,8 +25,57 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::orderBy('created_at', 'desc')->paginate(10);
-        return view('product.index',['products' => $products]);
+        $categories     = Category::all();
+        $product_model = Product::orderBy('id', 'desc')->paginate($this->paginate);
+        
+        $products = $product_model->each(function ($item, $key) {
+            $directory      = '/public/product/'. $item->id."/";
+            $file           = Storage::files($directory);
+            $item["img"]    = $file; 
+            return $item;
+        });
+        return view('product.index',['products' => $products, "categories"=>$categories,'product_model'=>$product_model]);
+    }
+
+    /**
+     * Display a listing of the resource about one or more categories.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function filterByCategory($id)
+    {
+        $categories     = Category::all();
+        $product_model  = Product::whereHas('categories', function ($query) use ($id) {
+                        $query->where('category_id', '=', $id);
+                    })::orderBy('id', 'desc')->paginate($this->paginate);
+        $products       = $product_model->map(function ($item, $key) {
+                                    $directory      = '/public/product/'. $item->id."/";
+                                    $file           = Storage::files($directory);
+                                    $item["img"]    = $file; 
+                                    return $item;
+                                });
+        return view('product.index',['products' => $products, 'product_model'=>$product_model,"categories"=>$categories]);
+    }
+
+    public function search(Request $request){
+        $categories     = Category::all();
+        if(count($request->categories)>0){
+             $product_model  = Product::whereHas('categories', function ($query) use ($request) {
+                        $query->whereIn('category_id',array_values($request->categories));
+                    })->where('products.name', 'like',"$request->search%")->paginate($this->paginate);
+        }
+        else{
+            $product        = new Product;
+            $product_model  = $product->where('name', 'like',"$request->search%")->paginate($this->paginate);
+        }
+        
+        $products       = $product_model->map(function ($item, $key) {
+                                    $directory      = '/public/product/'. $item->id."/";
+                                    $file           = Storage::files($directory);
+                                    $item["img"]    = $file; 
+                                    return $item;
+                                });
+        return view('product.index',['products' => $products, 'product_model'=>$product_model, "categories"=>$categories]);
     }
 
     /**
@@ -46,21 +97,30 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        
+        $this->validate($request, [
+            'name'          => 'required|max:150',
+            'description'   => 'required|max:255',
+            'quantity'      => 'required|numeric',
+            'price'         => 'required|numeric',
+            'file_product' => 'mimes:jpg,png'
+        ]);
 
         $product = new Product;
         $product->name        = $request->name;
         $product->description = $request->description;
-        $product->quantity    = $request->quantity;
-        $product->price       = $request->price;
+        $product->quantity    = intval($request->quantity);
+        $product->price       = number_format($request->price);
         $product->save();
         $file = $request->file('file_product');
 
         if (!empty($file)) {
-            $ext = $file->ext();
+            $ext = $file->extension($file);
             $path = $file->storeAs('/public/product/'. $product->id."/",$product->id.".".$ext);
         }
 
+        if(!empty($request->categories)){
+            $product->categories()->attach($request->categories);    
+        }
         
 
         return redirect()->route('product.index')->with('message', 'Product created successfully!');
@@ -94,9 +154,11 @@ class ProductController extends Controller
          $categories = Category::all();
          $directory = '/public/product/'. $product->id."/";
          $files     = Storage::files($directory);
-         $categories_product = $product->categories()->orderBy('name')->get();
-         var_dump($categories_product);
-         die;
+         $categories_product = [];
+         foreach ($product->categories as $category) {
+            $categories_product[] = $category->id;
+        }
+         
         return view('product.edit',compact('product'))->with(array('files'=>$files,'categories'=>$categories,'categories_product'=>$categories_product));
     }
 
@@ -110,20 +172,27 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'name' => 'required',
-            'description' => 'required',
+            'name'          => 'required|max:150',
+            'description'   => 'required|max:255',
+            'quantity'      => 'required|numeric',
+            'price'         => 'required|numeric',
+            'file_product' => 'mimes:jpg,png'
         ]);
         
         $product = Product::find($id);
         $product->name         = $request->name;
         $product->description  = $request->description;
-        $product->price        = $request->price;
-        $product->quantity     = $request->quantity;
+        $product->quantity    = intval($request->quantity);
+        $product->price       = number_format($request->price);
         $product->save();
         $file = $request->file('file_product');
 
-        $product->categories()->detach();
-        $product->categories()->attach($request->categories);
+        // 
+        if(!empty($request->categories)){
+            $product->categories()->detach();
+            $product->categories()->attach($request->categories);    
+        }
+        
 
         if (!empty($file)) {
             $ext = $file->extension($file);
@@ -141,12 +210,12 @@ class ProductController extends Controller
      * @param  \shopTest\Product  $product_id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Product $id)
+    public function destroy($id)
     {
         //
         $product = Product::findOrFail($id);
         $product->delete();
-        return redirect()->route('product.index')->with('alert-success','Product hasbeen deleted!');
+        return redirect()->route('product.index')->with('message','Product hasbeen deleted!');
     }
 
 

@@ -1,0 +1,11 @@
+#product img{
+	width: 100px;
+}
+
+.checkbox input[type=checkbox], .checkbox-inline input[type=checkbox], .radio input[type=radio], .radio-inline input[type=radio]{
+	position : inherit;
+	float : left;
+	margin-left:0;
+	margin-right: 5px;
+
+}

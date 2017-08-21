@@ -24,6 +24,7 @@
 				<div class="form-group">
 					<label for="exampleInputFile">File input</label>
 					<input type="file" name="file_category" id="exampleInputFile">
+					 {{ ($errors->has('file_product')) ? $errors->first('file_product') : '' }}<br>
 		        </div>
 		       
 		    <input type="hidden" name="_token" value="{{ csrf_token() }}">

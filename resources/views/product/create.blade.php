@@ -17,7 +17,7 @@
 			    </div>
 			    <div class="form-group">
 			    	<label for="description">Description</label>
-				    <textarea name="description" id="description" rows="8" cols="40" placeholder="An amazing botle water " class="form-control"></textarea>
+				    <textarea name="description" id="description"  rows="8" cols="40" placeholder="An amazing botle water " class="form-control"></textarea>
 				    {{ ($errors->has('description')) ? $errors->first('description') : '' }}<br>
 				</div>
 
@@ -48,10 +48,11 @@
 		        
 
 		    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-		    <input type="submit" name="name" value="Salvar">
+		    <input type="submit" name="action" value="Salvar">
 		    </div>
 		</form>
 		</div>
 	</div>
 </div>
 @endsection
+
